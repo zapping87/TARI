@@ -1,0 +1,144 @@
+<?php
+	session_start();
+	$conn = mysql_connect("localhost", "lia", "lia") OR die("Error: " . mysql_error());
+	mysql_select_db("lia", $conn);
+
+	$page = isset($_GET["page"]) ? $_GET["page"] : "";
+	$id = isset($_GET["id"]) ? $_GET["id"] : "";
+?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>DA DECIDERE</title>
+		<link href="style.css" rel="stylesheet" type="text/css" media="screen" />
+		<script type="text/javascript" src="script.js"></script>
+<?php
+	if($page == "detail.php") {
+?>
+		<script type="text/javascript">
+			if(window.XMLHttpRequest)
+				xhttp = new XMLHttpRequest();
+			else // Internet Explorer 5/6
+				xhttp = new ActiveXObject("Microsoft.XMLHTTP");
+
+			xhttp.open("GET","articoli.xml", false);
+			xhttp.send("");
+			xmlDoc = xhttp.responseXML;
+			var x = xmlDoc.getElementsByTagName("articolo");
+		</script>
+<?php
+	}
+?>
+	</head>
+	<body>
+	<div id="header-wrapper">
+		<div id="header">
+			<div id="logo">
+				<h1><a href="index.php">LOGO</a></h1>
+			</div>
+		</div>
+	</div>
+		<div id="page">
+			<div id="preview">&nbsp;</div>
+			<div id="page-bgtop">
+				<div id="page-bgbtm">
+					<div id="content">
+<?php
+	if(file_exists($page))
+		require_once($page);
+	else
+		require_once("productgrid.php");
+?>
+						<div style="clear: both;">&nbsp;</div>
+					</div>
+					<!-- end #content -->
+					<div id="sidebar">
+						<ul>
+							<li>
+								<div id="search">
+									<form method="get" action="#">
+										<div>
+											<input type="text" name="s" id="search-text" value="" />
+											<input type="submit" id="search-submit" value="Cerca" />
+										</div>
+									</form>
+								</div>
+								<div style="clear: both;">&nbsp;</div>
+							</li>
+							<li>
+								<h2>Login</h2>
+<?php
+	if(isset($_SESSION["logged"]) && $_SESSION["logged"] === true)
+		echo "<ul><li>Ciao, <i>{$_SESSION["username"]}</i></li></ul>";
+	else {
+?>
+								<form action="login.php" method="post">
+									<table style="width: 100%;">
+										<tr>
+											<td>
+												<label for="login-username">Username:</label>
+											</td>
+											<td>
+												<input type="text" name="login-username" id="login-username" />
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<label for="login-password">Password:</label>
+											</td>
+											<td>
+												<input type="password" name="login-password" id="login-password" />
+											</td>
+										</tr>
+										<tr>
+											<td>
+												&nbsp;
+											</td>
+											<td>
+												<input type="submit" name="login-go" id="login-go" value="Accedi" />
+											</td>
+										</tr>
+									</table>
+								</form>
+<?php
+	}
+?>
+								<br />
+							</li>
+							<li>
+								<h2>Menu</h2>
+								<ul>
+									<li><strong><a href="index.php">Home</a></strong></li>
+									<li><a href="index.php?page=register.php">Registrati!</a></li>
+									<li><a href="#">Carrello</a></li>
+								</ul>
+							</li>
+							<li>
+								<h2>Marche</h2>
+								<!-- SELECT marca, COUNT(*) AS quanti FROM articoli GROUP BY marca ORDER BY marca -->
+								<ul>
+								<?php
+									$result = mysql_query("SELECT marca, COUNT(*) AS quanti FROM articoli GROUP BY marca ORDER BY marca", $conn) OR die("Error: " . mysql_error());
+									while($row = mysql_fetch_assoc($result)) {
+										echo "<li><a href=\"#\">{$row["marca"]}</a> ({$row["quanti"]})</li>";
+									}
+									mysql_free_result($result);
+								?>
+								</ul>
+							</li>
+						</ul>
+					</div>
+					<!-- end #sidebar -->
+					<div style="clear: both;">&nbsp;</div>
+				</div>
+			</div>
+		</div>
+		<!-- end #page -->
+		<div id="footer">
+			<p>Progetto di LIA di Cardia Vanessa e Ledda Andrea.</p>
+		</div>
+	</body>
+</html>
